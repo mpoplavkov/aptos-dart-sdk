@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:aptos/abis.dart';
@@ -243,6 +244,28 @@ class TokenClient {
     final transactionRes = await aptosClient.submitSignedBCSTransaction(bcsTxn);
 
     return transactionRes["hash"];
+  }
+
+  /// User opt-in or out direct transfer through a boolean flag
+  Future<String> optInTokenTransfer(
+      AptosAccount account,
+      bool optIn,
+      {BigInt? maxGasAmount,
+      BigInt? gasUnitPrice,
+      BigInt? expireTimestamp}
+  ) async {
+    final payload = transactionBuilder.buildTransactionPayload(
+      "0x3::token::opt_in_direct_transfer",
+      [],
+      [optIn],
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+        account, payload,
+        maxGasAmount: maxGasAmount,
+        gasUnitPrice: gasUnitPrice,
+        expireTimestamp: expireTimestamp
+    );
   }
 
   /// Queries collection data.
